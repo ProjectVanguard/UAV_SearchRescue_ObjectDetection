@@ -1,12 +1,14 @@
 # Reference pyimagesearch.com
 
 # USAGE
-# python uavJoin.py --ip 0.0.0.0 --port 8000 --prototxt MobileNetSSD_deploy.prototxt.txt --model MobileNetSSD_deploy.caffemodel
+# python detectionStream.py --ip 0.0.0.0 --port 8000 --prototxt MobileNetSSD_deploy.prototxt.txt --model MobileNetSSD_deploy.caffemodel
 
 from imutils.video import VideoStream
 from imutils.video import FPS
 from flask import Response
 from flask import Flask
+from flask import Flask, flash, redirect, render_template, request, session, abort
+import os
 from flask import render_template
 import threading
 import argparse
@@ -48,8 +50,23 @@ time.sleep(2.0)
 
 @app.route("/")
 def index():
-    # return the rendered template
-    return render_template("index.html")
+    if not session.get('logged_in'):
+        return render_template('login.html')
+    else:
+        return render_template('index.html')
+
+@app.route('/login', methods=['POST'])
+def do_admin_login():
+    if request.form['password'] == 'password' and request.form['username'] == 'admin':
+        session['logged_in'] = True
+    else:
+        flash('wrong password!')
+    return index()
+
+@app.route("/logout")
+def logout():
+    session['logged_in'] = False
+    return index()
 
 def objectDetection(frame_count):
 
@@ -140,10 +157,6 @@ def objectDetection(frame_count):
             print(FrameTimeFormat.format(frameID , (datetime.datetime.now() - timestamp).microseconds ))
             outputFrame = frame.copy()
 
-
-
-
-
     print("Quitting\n")
 
         # update the FPS counter
@@ -204,6 +217,7 @@ if __name__ == '__main__':
     t.start()
 
     # start the flask app
+    app.secret_key = os.urandom(12)
     app.run(host=args["ip"], port=args["port"], debug=True,threaded=True, use_reloader=False)
 
     # release the video stream pointer
