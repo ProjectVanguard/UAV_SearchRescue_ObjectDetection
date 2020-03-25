@@ -135,9 +135,9 @@ def objectDetection(frame_count):
         # cv2.imshow("Frame", frame)
 
         with lock:
-            FrameTimeFormat = "Time spent on Frame {} : {}us "
-            frameID = frameID + 1
-            print(FrameTimeFormat.format(frameID , (datetime.datetime.now() - timestamp).microseconds ))
+            # FrameTimeFormat = "Time spent on Frame {} : {}us "
+            # frameID = frameID + 1
+            # print(FrameTimeFormat.format(frameID , (datetime.datetime.now() - timestamp).microseconds ))
             outputFrame = frame.copy()
 
 
